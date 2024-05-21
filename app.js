@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import express from 'express';
 import cors from 'cors';
-import apiRouterV1 from "./routers/__root_v1.js";
+import userRouter from "./routers/user-router.js";
 
 dotenv.config()
 
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
     });
 })
 
-app.use('/api/v1', apiRouterV1);
+app.use('/api/v1', userRouter);
 
 
 export default app;
