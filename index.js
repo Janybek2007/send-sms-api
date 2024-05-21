@@ -1,20 +1,47 @@
-import app from './app.js';
-import mongoose from "mongoose";
+import dotenv from 'dotenv'
+import express from 'express'
+import cors from 'cors'
+import mongoose from 'mongoose'
 
-const port = process.env.PORT || 4141;
+import errorMiddleware from './middlewares/err-middleware.js'
+import userRouter from './routers/user-router.js'
 
-async function dbConnect() {
+dotenv.config()
+
+const PORT = process.env.PORT || 6500
+const app = express()
+
+app.use(express.json())
+app.use(
+    cors({
+        origin: '*'
+    })
+)
+
+app.use(errorMiddleware)
+
+app.use('/api', userRouter)
+
+app.get('/', (req, res) => {
+    const {name = 'world'} = req.query
+    res.json({
+        msg: `hello ${name}`
+    })
+})
+
+
+const start = async () => {
     try {
-        const db_uri = process.env.DB_URI
-        await mongoose.connect(db_uri)
-        console.log('MongoDB Connected');
+        await mongoose.connect(process.env.DB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        })
+        app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`))
     } catch (e) {
-        console.log('error db connected', e)
+        console.log(e)
     }
 }
 
+start().then(r => r)
 
-app.listen(port, async () => {
-    await dbConnect();
-    console.log(`Listening: http://localhost:${port}`);
-});
+// module.exports = app

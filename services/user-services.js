@@ -4,17 +4,13 @@ import tokenService from "./token-service.js";
 class UserServices {
     async createUser(user) {
         const userData = await userModel.create(user)
-        const token = tokenService.generateToken(userData)
-
+        const token = tokenService.generateToken(user)
         return {
-            token: token.accessToken,
-            user: userData
+            user: userData,
+            token: token.accessToken
         }
     }
-
-
 }
 
-const userServices = new UserServices();
 
-export default userServices;
+export default new UserServices();

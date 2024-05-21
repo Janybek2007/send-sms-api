@@ -1,8 +1,10 @@
-import {ApiError} from "../exteptions/api-error.js";
-import userServices from "../services/user-services.js";
 import tokenService from "../services/token-service.js";
 import userModel from "../models/user-model.js";
+import {ApiError} from "../exteptions/api-error.js";
+import userServices from "../services/user-services.js";
 import send_smsServices from "../services/send_sms-services.js";
+import generateVerificationCode from "../helpers/generateCode.js";
+
 
 class UserController {
     async createUser(req, res, next) {
@@ -43,38 +45,29 @@ class UserController {
         }
     }
 
-    async getAllUser(req, res, next) {
+    async userGetAll(req, res, next) {
         try {
             const users = await userModel.find()
-
-            return res.json({users})
+            return res.status(200).json({users})
         } catch (e) {
             next(e)
         }
     }
 
     async generateCode(req, res, next) {
-        const code = this.generateVerificationCode()
-        const {phoneNumber} = req.body
         try {
-            const generateCodeAndText = `Your verification code is: ${code}`
-            await send_smsServices.send(generateCodeAndText, phoneNumber)
+            const {to} = req.body
+            const code = generateVerificationCode()
+            const codeAndText = `Your verification code is: ${code}`
+            await send_smsServices.send(to, codeAndText)
+
             res.status(200).send({
-                message: 'Verification code sent successfully'
+                message: 'Successfully generated code'
             })
         } catch (e) {
             next(e)
         }
     }
-
-    generateVerificationCode() {
-        const min = 100000;
-        const max = 999999;
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
 }
 
-const userController = new UserController();
-
-export default userController;
+export default new UserController()
