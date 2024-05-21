@@ -1,8 +1,10 @@
+import dotenv from 'dotenv'
 import express from 'express';
 import cors from 'cors';
-import apiRouterV1 from "./routers/__root_v1";
+import apiRouterV1 from "./routers/__root_v1.js";
 
-require('dotenv').config();
+dotenv.config()
+
 
 const app = express();
 

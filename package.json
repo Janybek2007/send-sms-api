@@ -1,8 +1,9 @@
 {
-  "name": "slash-apo",
+  "name": "slash-api",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
     "lint": "eslint --fix src test"
