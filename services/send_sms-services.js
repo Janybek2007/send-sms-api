@@ -10,7 +10,7 @@ class SendSMSServices {
             body: JSON.stringify({
                 "messages": [{
                     "destinations": [{"to": to}],
-                    "from": "Slash | Chat App", // Измените на нужное вам имя отправителя
+                    "from": "Slash | Chat App",
                     "text": text
                 }]
             })
