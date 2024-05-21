@@ -61,8 +61,9 @@ class UserController {
             const codeAndText = `Your verification code is: ${code}`
             await send_smsServices.send(to, codeAndText)
 
-            res.status(200).send({
-                message: 'Successfully generated code'
+            res.status(200).json({
+                message: 'Successfully generated code',
+                code
             })
         } catch (e) {
             next(e)
