@@ -5,7 +5,6 @@ import apiRouterV1 from "./routers/__root_v1.js";
 
 dotenv.config()
 
-
 const app = express();
 
 app.use(cors());
