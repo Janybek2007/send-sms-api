@@ -18,9 +18,7 @@ class UserController {
                 phoneNumber,
                 avatar
             })
-            return {
-                user: userData
-            }
+            return userData
         } catch (e) {
             next(e)
         }
