@@ -18,7 +18,7 @@ class UserController {
                 phoneNumber,
                 avatar
             })
-            return userData
+            return res.status(200).json(userData)
         } catch (e) {
             next(e)
         }
@@ -35,7 +35,7 @@ class UserController {
             if (!userData || !userDBData) {
                 return next(ApiError.UnauthorizedError())
             }
-            return res.json({
+            return res.status(200).json({
                 user: userDBData
             })
         } catch (e) {
