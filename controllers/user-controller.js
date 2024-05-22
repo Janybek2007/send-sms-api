@@ -28,7 +28,7 @@ class UserController {
             const userId = req.headers.authorization
             const userDBData = await userModel.findById(userId)
             if (!userDBData) {
-                return next(ApiError.UnauthorizedError())
+                return ApiError.UnauthorizedError()
             }
             return res.status(200).json({
                 user: userDBData
@@ -63,6 +63,25 @@ class UserController {
             next(e)
         }
     }
+
+    async updateUser(req, res, next) {
+        try {
+            const userId = req.headers.authorization;
+            const {username, avatar, phoneNumber} = req.body;
+
+            const userDBData = await userModel.findByIdAndUpdate(userId, {username, avatar, phoneNumber}, {new: true});
+
+            if (!userDBData) {
+                return res.status(401).json({error: "User not found"});
+            }
+
+            return res.status(200).json({message: "User updated successfully", user: userDBData});
+        } catch (e) {
+            // Pass error to error handling middleware
+            next(e);
+        }
+    }
+
 }
 
 export default new UserController()

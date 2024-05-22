@@ -7,6 +7,7 @@ const router = Router()
 router.post('/user/create', userController.createUser)
 router.get('/user/get/all', userController.userGetAll)
 router.get('/user/get/current', authMiddleware, userController.getCurrentUser)
+router.get('/user/update', authMiddleware, userController.updateUser)
 router.post('/user/generate-code', userController.generateCode)
 
 export default router
