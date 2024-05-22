@@ -77,7 +77,6 @@ class UserController {
 
             return res.status(200).json({message: "User updated successfully", user: userDBData});
         } catch (e) {
-            // Pass error to error handling middleware
             next(e);
         }
     }
