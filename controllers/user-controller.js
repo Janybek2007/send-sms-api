@@ -1,4 +1,3 @@
-import tokenService from "../services/token-service.js";
 import userModel from "../models/user-model.js";
 import {ApiError} from "../exteptions/api-error.js";
 import userServices from "../services/user-services.js";
@@ -26,13 +25,9 @@ class UserController {
 
     async getCurrentUser(req, res, next) {
         try {
-            const authorizationHeader = req.headers.authorization
-            const accessToken = authorizationHeader.split(' ')[1]
-            const userData = tokenService.validateToken(accessToken)
-            const userDBData = await userModel.findOne(
-                {phoneNumber: userData.phoneNumber},
-            )
-            if (!userData || !userDBData) {
+            const userId = req.headers.authorization
+            const userDBData = await userModel.findById(userId)
+            if (!userDBData) {
                 return next(ApiError.UnauthorizedError())
             }
             return res.status(200).json({
