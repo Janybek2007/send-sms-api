@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 
 import errorMiddleware from './middlewares/err-middleware.js'
 import userRouter from './routers/user-router.js'
+import userChatsRouter from './routers/user_chats-router.js'
 
 dotenv.config()
 
@@ -13,33 +14,33 @@ const app = express()
 
 app.use(express.json())
 app.use(
-    cors({
-        origin: '*'
-    })
+	cors({
+		origin: '*'
+	})
 )
 
 app.use(errorMiddleware)
 
 app.use('/api', userRouter)
+app.use('/api', userChatsRouter)
 
 app.get('/', (req, res) => {
-    const {name = 'world'} = req.query
-    res.json({
-        msg: `hello ${name}`
-    })
+	const { name = 'world' } = req.query
+	res.json({
+		msg: `hello ${name}`
+	})
 })
 
-
 const start = async () => {
-    try {
-        await mongoose.connect(process.env.DB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        })
-        app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`))
-    } catch (e) {
-        console.log(e)
-    }
+	try {
+		await mongoose.connect(process.env.DB_URI, {
+			useNewUrlParser: true,
+			useUnifiedTopology: true
+		})
+		app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`))
+	} catch (e) {
+		console.log(e)
+	}
 }
 
 start().then(r => r)
