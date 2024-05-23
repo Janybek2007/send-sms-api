@@ -19,7 +19,7 @@ class MessagesController {
 			if (!messages) {
 				return res.status(404).json({ message: 'Messages not found' })
 			}
-			res.status(200).json({ messages })
+			res.status(200).json(messages)
 		} catch (error) {
 			console.error(error)
 			res.status(500).json({ message: 'Server Error' })
@@ -42,7 +42,7 @@ class MessagesController {
 			}
 			messages.messages.push(newMessage)
 			await messages.save()
-			res.status(200).json({ messages })
+			res.status(200).json(messages)
 		} catch (error) {
 			console.error(error)
 			res.status(500).json({ message: 'Server Error' })
@@ -61,7 +61,7 @@ class MessagesController {
 				msg => msg._id.toString() !== messageId
 			)
 			await messages.save()
-			res.status(200).json({ messages })
+			res.status(200).json(messages)
 		} catch (error) {
 			console.error(error)
 			res.status(500).json({ message: 'Server Error' })
@@ -90,7 +90,7 @@ class MessagesController {
 				messageToUpdate.img = img
 			}
 			await messages.save()
-			res.status(200).json({ messages })
+			res.status(200).json(messages)
 		} catch (error) {
 			console.error(error)
 			res.status(500).json({ message: 'Server Error' })
