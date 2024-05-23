@@ -6,6 +6,7 @@ import mongoose from 'mongoose'
 import errorMiddleware from './middlewares/err-middleware.js'
 import userRouter from './routers/user-router.js'
 import userChatsRouter from './routers/user_chats-router.js'
+import messagesRouter from './routers/messages-router.js'
 
 dotenv.config()
 
@@ -23,6 +24,7 @@ app.use(errorMiddleware)
 
 app.use('/api', userRouter)
 app.use('/api', userChatsRouter)
+app.use('/api', messagesRouter)
 
 app.get('/', (req, res) => {
 	const { name = 'world' } = req.query

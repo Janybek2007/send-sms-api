@@ -13,7 +13,7 @@ const UserChatsSchema = new Schema({
 				img: { type: Boolean, default: false },
 				text: { type: String, default: '' }
 			},
-			date: { type: Number, default: 0 },
+			date: { type: Number, default: Date.now() },
 			interlocutorId: { type: Types.ObjectId, ref: 'User' }
 		}
 	]
