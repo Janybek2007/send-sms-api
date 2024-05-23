@@ -26,44 +26,7 @@ class MessagesController {
 		}
 	}
 
-	async sendTextMessage(req, res) {
-		const { messagesId } = req.params
-		const { text, senderId } = req.body
-
-		try {
-			await findAndCreate(messagesId)
-			const messages = await Messages.findOne({ messageId: messagesId })
-			if (!messages) {
-				return res.status(404).json({ message: 'Messages not found' })
-			}
-			messages.messages.push({ text, senderId })
-			await messages.save()
-			res.json(messages)
-		} catch (error) {
-			console.error(error)
-			res.status(500).json({ message: 'Server Error' })
-		}
-	}
-
-	async sendImgMessage(req, res) {
-		const { messagesId } = req.params
-		const { img, senderId } = req.body
-		try {
-			await findAndCreate(messagesId)
-			const messages = await Messages.findOne({ messageId: messagesId })
-			if (!messages) {
-				return res.status(404).json({ message: 'Messages not found' })
-			}
-			messages.messages.push({ img, senderId })
-			await messages.save()
-			res.json(messages)
-		} catch (error) {
-			console.error(error)
-			res.status(500).json({ message: 'Server Error' })
-		}
-	}
-
-	async sendImgAndTextMessage(req, res) {
+	async sendMessage(req, res) {
 		const { messagesId } = req.params
 		const { text, img, senderId } = req.body
 		try {

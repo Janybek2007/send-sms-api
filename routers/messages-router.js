@@ -5,13 +5,8 @@ const router = Router()
 
 router.get('/messages/get/:messagesId', messagesController.getMessages)
 router.post(
-	'/messages/:messagesId/send/text',
-	messagesController.sendTextMessage
-)
-router.post('/messages/:messagesId/send/img', messagesController.sendImgMessage)
-router.post(
-	'/messages/:messagesId/send/img_and_text',
-	messagesController.sendImgAndTextMessage
+	'/messages/:messagesId/send/message',
+	messagesController.sendMessage
 )
 router.delete(
 	'/messages/:messagesId/delete/message/:messageId',
