@@ -73,30 +73,28 @@ class UserChatsController {
 			if (!isFindUser) {
 				return ApiError.UnauthorizedError()
 			}
-			const userChats = await userChatsModel.findOne({ userId })
+
+			let userChats = await userChatsModel.findOne({ userId })
 			if (!userChats) {
-				await userChatsModel.create({
+				userChats = await userChatsModel.create({
 					userId,
 					chats: []
 				})
 			}
+
 			const { chatId, lastMessage, date, interlocutorId } = req.body
-			console.log(req.body);
+
 			if (interlocutorId === userId) {
-				return res
-					.status(404)
-					.json({
-						message: `error [interlocutorId !== userId] | [${interlocutorId} !== ${userId}]`
-					})
+				return res.status(400).json({
+					message: `Error: interlocutorId cannot be the same as userId. [${interlocutorId} === ${userId}]`
+				})
 			}
 
-			const conditionChatId = userChats.chats.find(
-				chat => chat.chatId === chatId
-			)
-			if (conditionChatId && userChats.chats.length !== 0) {
+			const existingChat = userChats.chats.find(chat => chat.chatId === chatId)
+			if (existingChat) {
 				return res
-					.status(404)
-					.json({ message: 'Such a chat room already exists' })
+					.status(400)
+					.json({ message: 'Chat room with this chatId already exists' })
 			}
 
 			const newChat = {
@@ -108,6 +106,7 @@ class UserChatsController {
 
 			userChats.chats.push(newChat)
 			await userChats.save()
+
 			res.status(200).json({ chats: userChats })
 		} catch (error) {
 			next(error)
