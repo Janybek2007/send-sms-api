@@ -81,6 +81,7 @@ class UserChatsController {
 				})
 			}
 			const { chatId, lastMessage, date, interlocutorId } = req.body
+			console.log(req.body);
 			if (interlocutorId === userId) {
 				return res
 					.status(404)

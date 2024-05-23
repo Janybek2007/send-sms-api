@@ -1,7 +1,7 @@
 import { model, Schema, Types } from 'mongoose'
 
 const MessagesSchema = new Schema({
-	messageId: { type: String, required: true, unique: true },
+	messageId: { type: String, required: true,  },
 	messages: [
 		{
 			text: { type: String, required: false },
