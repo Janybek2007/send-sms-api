@@ -7,7 +7,6 @@ const UserChatsSchema = new Schema({
 			chatId: {
 				type: String,
 				required: true,
-				unique: true
 			},
 			lastMessage: {
 				img: { type: Boolean, default: false },
