@@ -35,7 +35,12 @@ class MessagesController {
 			if (!messages) {
 				return res.status(404).json({ message: 'Messages not found' })
 			}
-			messages.messages.push({ text, img, senderId })
+			let newMessage = {
+				text: text ? text: "",
+				img: img ? img : "",
+				senderId
+			}
+			messages.messages.push(newMessage)
 			await messages.save()
 			res.json(messages)
 		} catch (error) {
