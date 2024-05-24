@@ -1,9 +1,7 @@
 import userModel from '../models/user-model.js'
 import userChatsModel from '../models/user_chats-model.js'
 import { ApiError } from '../exteptions/api-error.js'
-import { Server } from 'socket.io'
-
-const io = new Server()
+import { pusher } from '../index.js'
 
 async function verifiUser(userId) {
 	const user = await userModel.findById(userId)
@@ -27,7 +25,7 @@ class UserChatsController {
 					.status(404)
 					.json({ message: `No data for identifier ${userId} found` })
 			}
-
+			
 			res.status(200).json({ chats: result })
 		} catch (error) {
 			next(error)
@@ -55,7 +53,7 @@ class UserChatsController {
 				chat.chatId === chatId ? { ...chat, ...updateData } : chat
 			)
 			await result.save()
-			io.emit('chatUpdated', result)
+			pusher.trigger('chat-events', 'update-chat', { chats: result })
 			res.status(200).json({ chats: result })
 		} catch (error) {
 			next(error)
@@ -72,6 +70,7 @@ class UserChatsController {
 			}
 
 			let userChats = await userChatsModel.findOne({ userId })
+
 			if (!userChats) {
 				userChats = await userChatsModel.create({
 					userId,
@@ -102,9 +101,8 @@ class UserChatsController {
 			}
 
 			userChats.chats.push(newChat)
+			pusher.trigger('chat-events', 'new-chat', { chat: newChat })
 			await userChats.save()
-
-			io.emit('chatCreated', userChats)
 			res.status(200).json({ chats: userChats })
 		} catch (error) {
 			next(error)
@@ -132,8 +130,8 @@ class UserChatsController {
 			)
 			if (findChatIndex !== -1) {
 				result.chats.splice(findChatIndex, 1)
+				pusher.trigger('chat-events', 'delete-chat', { chats: result })
 				await result.save()
-				io.emit('chatDeleted', result)
 				res.status(200).json({ chats: result })
 			} else {
 				return ApiError.BadRequest('No chat on this id was found')
