@@ -43,6 +43,13 @@ app.get('/', (req, res) => {
 	})
 })
 
+app.post('/send-message', (req, res) => {
+	const { message } = req.body
+	pusher.trigger('my-channel', 'my-event', {
+		message: message
+	})
+	res.status(200).send('Message sent')
+})
 const start = async () => {
 	try {
 		await mongoose.connect(process.env.DB_URI)
