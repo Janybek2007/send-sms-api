@@ -1,140 +1,147 @@
-import userModel from '../models/user-model.js';
-import userChatsModel from '../models/user_chats-model.js';
-import { ApiError } from '../exteptions/api-error.js';
-import { Server } from 'socket.io';
+import userModel from '../models/user-model.js'
+import userChatsModel from '../models/user_chats-model.js'
+import { ApiError } from '../exteptions/api-error.js'
+import { Server } from 'socket.io'
 
-const io = new Server();
+const io = new Server()
 
 async function verifiUser(userId) {
-    const user = await userModel.findById(userId);
-    return !!user;
+	const user = await userModel.findById(userId)
+	return !!user
 }
 
 class UserChatsController {
-    async getChats(req, res, next) {
-        try {
-            const { userId } = req.params;
-            const isFindUser = await verifiUser(userId);
+	async getChats(req, res, next) {
+		try {
+			const { userId } = req.params
+			const isFindUser = await verifiUser(userId)
 
-            if (!isFindUser) {
-                return ApiError.UnauthorizedError();
-            }
+			if (!isFindUser) {
+				return ApiError.UnauthorizedError()
+			}
 
-            const result = await userChatsModel.findOne({ userId });
+			const result = await userChatsModel.findOne({ userId })
 
-            if (!result) {
-                return res.status(404).json({ message: `No data for identifier ${userId} found` });
-            }
+			if (!result) {
+				return res
+					.status(404)
+					.json({ message: `No data for identifier ${userId} found` })
+			}
 
-            res.status(200).json({ chats: result });
+			res.status(200).json({ chats: result })
+		} catch (error) {
+			next(error)
+		}
+	}
 
-        } catch (error) {
-            next(error);
-        }
-    }
+	async updateChat(req, res, next) {
+		try {
+			const { chatId, userId, updateData } = req.params
 
-    async updateChat(req, res, next) {
-        try {
-            const { chatId, userId, updateData } = req.params;
+			const isFindUser = await verifiUser(userId)
+			if (!isFindUser) {
+				return ApiError.UnauthorizedError()
+			}
 
-            const isFindUser = await verifiUser(userId);
-            if (!isFindUser) {
-                return ApiError.UnauthorizedError();
-            }
+			const result = await userChatsModel.findOne({ userId })
 
-            const result = await userChatsModel.findOne({ userId });
+			if (!result) {
+				return res
+					.status(404)
+					.json({ message: `No data for identifier ${userId} found` })
+			}
 
-            if (!result) {
-                return res.status(404).json({ message: `No data for identifier ${userId} found` });
-            }
+			result.chats.map(chat =>
+				chat.chatId === chatId ? { ...chat, ...updateData } : chat
+			)
+			await result.save()
+			io.emit('chatUpdated', result)
+			res.status(200).json({ chats: result })
+		} catch (error) {
+			next(error)
+		}
+	}
 
-            result.chats.map(chat =>
-                chat.chatId === chatId ? { ...chat, ...updateData } : chat
-            );
-            await result.save();
-            io.emit('chatUpdated', result);
-            res.status(200).json({ chats: result });
+	async createChat(req, res, next) {
+		try {
+			const { userId } = req.params
 
-        } catch (error) {
-            next(error);
-        }
-    }
+			const isFindUser = await verifiUser(userId)
+			if (!isFindUser) {
+				return ApiError.UnauthorizedError()
+			}
 
-    async createChat(req, res, next) {
-        try {
-            const { userId } = req.params;
+			let userChats = await userChatsModel.findOne({ userId })
+			if (!userChats) {
+				userChats = await userChatsModel.create({
+					userId,
+					chats: []
+				})
+			}
 
-            const isFindUser = await verifiUser(userId);
-            if (!isFindUser) {
-                return ApiError.UnauthorizedError();
-            }
+			const { chatId, lastMessage, date, interlocutorId } = req.body
 
-            let userChats = await userChatsModel.findOne({ userId });
-            if (!userChats) {
-                userChats = await userChatsModel.create({
-                    userId,
-                    chats: []
-                });
-            }
+			if (interlocutorId === userId) {
+				return res.status(400).json({
+					message: `Error: interlocutorId cannot be the same as userId. [${interlocutorId} === ${userId}]`
+				})
+			}
 
-            const { chatId, lastMessage, date, interlocutorId } = req.body;
+			const existingChat = userChats.chats.find(chat => chat.chatId === chatId)
+			if (existingChat) {
+				return res
+					.status(400)
+					.json({ message: 'Chat room with this chatId already exists' })
+			}
 
-            if (interlocutorId === userId) {
-                return res.status(400).json({
-                    message: `Error: interlocutorId cannot be the same as userId. [${interlocutorId} === ${userId}]`
-                });
-            }
+			const newChat = {
+				chatId,
+				lastMessage,
+				date,
+				interlocutorId
+			}
 
-            const existingChat = userChats.chats.find(chat => chat.chatId === chatId);
-            if (existingChat) {
-                return res.status(400).json({ message: 'Chat room with this chatId already exists' });
-            }
+			userChats.chats.push(newChat)
+			await userChats.save()
 
-            const newChat = {
-                chatId,
-                lastMessage,
-                date,
-                interlocutorId
-            };
+			io.emit('chatCreated', userChats)
+			res.status(200).json({ chats: userChats })
+		} catch (error) {
+			next(error)
+		}
+	}
 
-            userChats.chats.push(newChat);
-            await userChats.save();
+	async deleteChat(req, res, next) {
+		try {
+			const { chatId, userId } = req.params
 
-            io.emit('chatCreated', userChats); 
-            res.status(200).json({ chats: userChats });
-        } catch (error) {
-            next(error);
-        }
-    }
+			const isFindUser = await verifiUser(userId)
+			if (!isFindUser) {
+				return ApiError.UnauthorizedError()
+			}
 
-    async deleteChat(req, res, next) {
-        try {
-            const { chatId, userId } = req.params;
+			const result = await userChatsModel.findOne({ userId })
+			if (!result) {
+				return res
+					.status(404)
+					.json({ message: `No data for identifier ${userId} found` })
+			}
 
-            const isFindUser = await verifiUser(userId);
-            if (!isFindUser) {
-                return ApiError.UnauthorizedError();
-            }
-
-            const result = await userChatsModel.findOne({ userId });
-            if (!result) {
-                return res.status(404).json({ message: `No data for identifier ${userId} found` });
-            }
-
-            const findChatIndex = result.chats.findIndex(chat => chat.chatId === chatId);
-            if (findChatIndex !== -1) {
-                result.chats.splice(findChatIndex, 1);
-                await result.save();
-                io.emit('chatDeleted', result);
-                res.status(200).json({ chats: result });
-            } else {
-                return ApiError.BadRequest('No chat on this id was found');
-            }
-
-        } catch (error) {
-            next(error);
-        }
-    }
+			const findChatIndex = result.chats.findIndex(
+				chat => chat.chatId === chatId
+			)
+			if (findChatIndex !== -1) {
+				result.chats.splice(findChatIndex, 1)
+				await result.save()
+				io.emit('chatDeleted', result)
+				res.status(200).json({ chats: result })
+			} else {
+				return ApiError.BadRequest('No chat on this id was found')
+			}
+		} catch (error) {
+			next(error)
+		}
+	}
 }
 
-export default new UserChatsController();
+export default new UserChatsController()
