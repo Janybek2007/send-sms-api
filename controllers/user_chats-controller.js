@@ -25,7 +25,9 @@ class UserChatsController {
 					.status(404)
 					.json({ message: `No data for identifier ${userId} found` })
 			}
-
+			pusher.trigger('chat-events', 'get-chats', {
+				chats: result
+			})
 			res.status(200).json({ chats: result })
 		} catch (error) {
 			next(error)

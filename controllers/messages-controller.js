@@ -20,6 +20,9 @@ class MessagesController {
 			if (!messages) {
 				return res.status(404).json({ message: 'Messages not found' })
 			}
+			pusher.trigger('messages', 'get-message', {
+				messages
+			})
 			res.status(200).json(messages)
 		} catch (error) {
 			console.error(error)
