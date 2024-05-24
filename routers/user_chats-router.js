@@ -17,7 +17,7 @@ router.patch(
 router.post(
 	'/chat/:userId/create',
 	authMiddleware,
-	userChatsController.creatChat
+	userChatsController.createChat
 )
 
 export default router
