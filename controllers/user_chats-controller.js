@@ -34,7 +34,8 @@ class UserChatsController {
 
 	async updateChat(req, res, next) {
 		try {
-			const { chatId, userId, updateData } = req.params
+			const { chatId, userId } = req.params
+			const { updateData } = req.body
 
 			const isFindUser = await verifiUser(userId)
 			if (!isFindUser) {
