@@ -1,17 +1,21 @@
+// /index.js
 import dotenv from 'dotenv'
 import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
+import http from 'http'; 
 
 import errorMiddleware from './middlewares/err-middleware.js'
 import userRouter from './routers/user-router.js'
 import userChatsRouter from './routers/user_chats-router.js'
 import messagesRouter from './routers/messages-router.js'
+import websocketServer from './websocket-server.js';
 
 dotenv.config()
 
 const PORT = process.env.PORT || 6500
 const app = express()
+const server = http.createServer(app);
 
 app.use(express.json())
 app.use(
@@ -35,11 +39,9 @@ app.get('/', (req, res) => {
 
 const start = async () => {
 	try {
-		await mongoose.connect(process.env.DB_URI, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true
-		})
+		await mongoose.connect(process.env.DB_URI)
 		app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`))
+		websocketServer(server);
 	} catch (e) {
 		console.log(e)
 	}
@@ -47,4 +49,4 @@ const start = async () => {
 
 start().then(r => r)
 
-// module.exports = app
+export default app
