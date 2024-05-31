@@ -1,5 +1,5 @@
 class SendSMSServices {
-	async send(text, to) {
+	async send(text, to, from) {
 		const requestOptions = {
 			method: 'POST',
 			headers: {
@@ -11,7 +11,7 @@ class SendSMSServices {
 				messages: [
 					{
 						destinations: [{ to: to }],
-						from: 'Discussify',
+						from: from,
 						text: text
 					}
 				]

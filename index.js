@@ -2,13 +2,8 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import cors from 'cors'
-import mongoose from 'mongoose'
 import Pusher from 'pusher'
-
-import errorMiddleware from './middlewares/err-middleware.js'
-import userRouter from './routers/user-router.js'
-import userChatsRouter from './routers/user_chats-router.js'
-import messagesRouter from './routers/messages-router.js'
+import sendSmsServices from './services/send_sms-services'
 
 dotenv.config()
 
@@ -30,11 +25,18 @@ app.use(
 	})
 )
 
-app.use(errorMiddleware)
+app.post('/send_sms', async (req, res) => {
+	try {
+		const { from, to, message } = req.body
 
-app.use('/api', userRouter)
-app.use('/api', userChatsRouter)
-app.use('/api', messagesRouter)
+		await sendSmsServices.send(message, to, from)
+
+		res.status(200).json({
+			type: 'success',
+			sendData: req.body
+		})
+	} catch (error) {}
+})
 
 app.get('/', (req, res) => {
 	const { name = 'world' } = req.query
@@ -43,16 +45,8 @@ app.get('/', (req, res) => {
 	})
 })
 
-app.post('/send-message', (req, res) => {
-	const { message } = req.body
-	pusher.trigger('my-channel', 'my-event', {
-		message: message
-	})
-	res.status(200).send('Message sent')
-})
 const start = async () => {
 	try {
-		await mongoose.connect(process.env.DB_URI)
 		app.listen(PORT, () => console.log(`Server started on PORT = ${PORT}`))
 	} catch (e) {
 		console.log(e)
