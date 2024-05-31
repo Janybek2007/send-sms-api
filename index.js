@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import express from 'express'
 import cors from 'cors'
 import Pusher from 'pusher'
-import sendSmsServices from './services/send_sms-services'
+import sendSmsServices from './services/send_sms-services.js'
 
 dotenv.config()
 
